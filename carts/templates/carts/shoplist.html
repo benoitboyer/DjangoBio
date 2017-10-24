@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="col-xs-12">
+	<h3>
+		<a href="{% url 'carts:index' cart.id %}"><smal>Votre Panier {% if cart.cart_size > 0 %}({{cart.cart_size}}){%endif%}</smal></a>
+	</h3>
+	<p>Total du panier: <span id="cart_price">{{cart.cart_price}} €<span/></p>
+	<form method="post" class="my-ajax-form" data-parsley-validate="" data-url="{% url 'carts:addtocart' cart.id %}">
+		{% csrf_token %}
+		
+		
+		{% for product in shop_items  %}
+		<div class="row shopitem{{forloop.counter}}">	
+			<div class="col-xs-12">
+				<div class="col-xs-8">
+					{{product.product_name}} :
+					<input type="hidden" name="product_name" value="{{product.product_name}}">
+					<input type="hidden" name="product_id" value="{{product.id}}">
+				</div>
+				<div class="col-xs-2 form-group">
+					<input type="text" value="0" data-parsley-gte="0" name="quantity" class="form-control"><span class="help-block"></span>
+				</div>
+				<div class="col-xs-1">
+					<input type="button" value="+" class="btn btn-success btn-xs submit-form ">
+				</div>
+				<div class="col-xs-1">
+					<span class="success glyphicon glyphicon-ok text-center"  style="display: none;"></span>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+	</form>
+</div>
+{% endblock content %}
+{% block javascript %}
+<script>	
+$(document).ready(function(){
+
+	var $myForm = $('.my-ajax-form');
+	var $button = $('.submit-form');
+	$button.click(function(event){
+		event.preventDefault();
+		$input=$(this).closest('.row').find("input");
+		var $token = $(this).closest('.my-ajax-form').find("input[name='csrfmiddlewaretoken']").val();
+		var $thisURL = $(this).closest('.my-ajax-form').attr('data-url');
+		//litle trick to get the this usable in function below
+		var $that=$(this)
+		var $my_data = $(this).closest('.row').find('input').serialize();
+		var $formData = 'csrfmiddlewaretoken='+$token+'&'+$my_data ;
+			
+		console.log($formData);
+		console.log($thisURL);
+		
+		$.ajax({
+			method:'POST',
+			url: $thisURL,
+			data: $formData,
+			success: handleSuccess,
+			error: handleError,
+		});
+			
+		function handleSuccess(data){
+			$that.closest('.row').find("input[name='quantity']").val('0');
+			$that.closest('.row').find(".success").fadeIn().fadeOut();
+			$that.closest('.row').find('.form-group').removeClass('has-error').addClass('has-success');
+			$that.closest('.row').find("span").text("");
+			//update the total of the cart
+			console.log(data.cart.id);
+			console.log(data.cart.cart_price);
+			$('#cart_price').text(data.cart.cart_price+" €");
+		};
+
+		function handleError(ThrowError){
+			$json_parsed = JSON.parse(ThrowError.responseText)
+			$err_val=$json_parsed['err']
+
+			//console.log($err_k);
+			console.log($err_val);
+			$that.closest('.row').find("input[name='quantity']").val('0');
+			//$that.closest('.row').find("input[name='quantity']").find('.error').fadeIn().text($err_val);
+			$that.closest('.row').find('.form-group').removeClass('has-success').addClass('has-error');
+			$that.closest('.row').find("span").text($err_val);		
+		};
+	
+	});
+});
+</script>
+{% endblock javascript %}

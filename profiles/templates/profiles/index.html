@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+{% if error_message %}
+	{{error_message}}
+{% endif %}
+{% if available_orders %}
+	<h3><small>Les Commandes disponibles</small></h3>
+	{% for order in available_orders %}
+		<a href="{% url 'carts:shoplist' order.id %}">Commande du {{order.max_date|date:"d/m/Y"}}</a>
+	{% endfor %}
+{% endif %}
+{% if past_orders %}
+	<h3><small>Vos commandes précédentes</small></h3>
+	{% for order in past_orders %}
+		<a href="#">Commande du {{order.max_date|date:"d/m/Y"}}</a>
+	{% endfor %}
+{% endif %}
+
+{% endblock content %}

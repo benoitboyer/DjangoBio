@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block content %}
+<h2><small>Mon panier <span class="glyphicon glyphicon-shopping-cart"></span></small></h2>
+<div class="row">
+    <div class="col-sm-12 col-md-10 col-md-offset-1">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Quantités</th>
+                    <th class="text-center">Prix unitaire</th>
+                    <th class="text-center">Total</th>
+                    <th> </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in cart.cartitem_set.all  %}
+                <tr class='form-group'>
+                    <td class="col-sm-6 col-md-6">
+                    <div class="media">
+                        <div class="media-body">
+                            <h4 class="media-heading">{{item.cart_item_name}}</h4>
+                            <h5 class="media-heading">Marque: {{item.product.product_brand}}</h5>
+                            <span class="help-block"></span>
+                        </div>
+                    </div>
+                    </td>
+                    <td class="col-sm-1 col-md-1" style="text-align: center">
+                    <input type="text" class="form-control input_quantity" id="input_quantity" name="quantity" data-myUrl="{% url 'carts:changequantity' cart.id item.id %}" value="{{item.cart_item_quantity}}">
+                    </td>
+                    
+                    <td class="col-sm-2 col-md-2 text-center"><strong>{{item.product.product_price}}€</strong></td>
+                    <td class="col-sm-2 col-md-2 text-center item_total" id="item_total{{item.id}}"><strong>{{item.cart_item_total}}€</strong></td>
+                    <td class="col-sm-1 col-md-1">
+                    <button type="button" class="btn btn-danger remove_item" data-DelUrl="{% url 'carts:removefromcart' cart.id item.id %}">
+                        <span class="glyphicon glyphicon-remove" id="remove_item{{item_id}}" ></span> Supprimer le produit
+                    </button></td>
+                    
+
+                </tr>
+            {% endfor %}   
+                <tr>
+                    <td>   </td>
+                    <td>   </td>
+                    <td>   </td>
+                    <td><h3>Total TTC</h3></td>
+                    <td class="text-right" id="cart_price"><h3><strong>{{cart.cart_price}}€</strong></h3></td>
+                </tr>
+                <tr>
+                    <td>   </td>
+                    <td>   </td>
+                    <td>   </td>
+                    <td>
+                    <a href="{% url 'carts:shoplist' cart.cart_order.id %}"><button type="button" class="btn btn-default">
+                        <span class="glyphicon glyphicon-shopping-cart"></span> Retourner à mes achats
+                    </button></a></td>
+                    <td>
+                    <a href="{% url 'carts:validatecart' cart.id %}"><button type="button" class="btn btn-success">
+                        Valider la commande <span class="glyphicon glyphicon-play"></span>
+                    </button></a></td>
+                </tr> 
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}
+{% block javascript %}
+<script>	
+$(document).ready(function(){
+	//get the csrf token
+	// using jQuery
+	function getCookie(name) {
+    	var cookieValue = null;
+    	if (document.cookie && document.cookie !== '') {
+    	    var cookies = document.cookie.split(';');
+    	    for (var i = 0; i < cookies.length; i++) {
+    	        var cookie = jQuery.trim(cookies[i]);
+    	        // Does this cookie string begin with the name we want?
+    	        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+    	            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+    	            break;
+    	        }
+        	}
+   	 	}
+   		return cookieValue;
+	}
+	
+	var csrftoken = getCookie('csrftoken');
+	var $myForm = $('.my-ajax-form');
+	var $button = $('.submit-form');
+	var $myinput = $('.input_quantity');
+
+	$myinput.change(function(event){
+		event.preventDefault();
+		var $thisURL = $(this).attr('data-Myurl');
+		var $that=$(this)
+		var $my_data = $(this).val();
+		console.log($my_data);
+		var $formData = 'csrfmiddlewaretoken='+csrftoken+'&quantity='+$my_data ;
+			
+		$.ajax({
+			method:'POST',
+			url: $thisURL,
+			data: $formData,
+			success: handleSuccess,
+			error: handleError,
+		});
+			
+		function handleSuccess(data){
+			console.log(data.message);
+			$that.val(data.cart_item.cart_item_quantity);
+			$that.closest('.form-group').removeClass('has-error').addClass('has-success');
+			$that.closest('.form-group').find("span:first").text("");
+			
+			//update the total of the cart
+			console.log(data.cart.id);
+			$id=data.cart_item.id;
+			console.log(data.cart.cart_price);
+			$('#cart_price').html("<h3><strong>"+data.cart.cart_price+" €"+"</strong></h3>");
+			$('#item_total'+$id).html("<strong>"+data.cart_item.cart_item_total+" €"+"</strong>");
+		};
+
+		function handleError(ThrowError){
+			$json_parsed = JSON.parse(ThrowError.responseText);
+			$id=$json_parsed['item_id'];
+			$error_msg=$json_parsed['err'];
+
+			$that.val('0');
+			$('#item_total'+$id).html("<strong>0€</strong>");
+			$('#cart_price').html("<h3><strong>Erreur</strong></h3>");
+			$that.closest('.form-group').removeClass('has-success').addClass('has-error');
+			$that.closest('.form-group').find("span:first").text($error_msg);		
+		};
+	
+	});
+
+	$removebutton=$('.remove_item')
+
+	$removebutton.click(function(event){
+		$that=$(this);
+		event.preventDefault();
+		var $confirm=confirm("Are you sure you want to remove this item?");
+		if ($confirm){
+			
+			var $thisURL = $(this).attr('data-DelUrl');
+			//alert($thisURL);
+			console.log($thisURL);
+
+			$.ajax({
+				method:'POST',
+				url: $thisURL,
+				data: 'csrfmiddlewaretoken='+csrftoken,
+				success: handleSuccess,
+				error: handleError,
+			});
+			function handleSuccess(data){
+				console.log(data.msg);
+				$that.closest('.form-group').hide();
+				console.log(data.cart.cart_price);
+				$('#cart_price').html("<h3><strong>"+data.cart.cart_price+" €"+"</strong></h3>");
+			};
+			function handleError(ThrowError){};
+		}
+	});	
+});
+</script>
+{% endblock javascript %}

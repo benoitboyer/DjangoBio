@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+	{% if product_list %}
+		<ul>
+		{% for product in product_list %}
+			<li>
+				<em>{{product.product_brand}}</em> : {{product.product_name}} : {{product.product_price}}
+			</li>
+		{% endfor %}
+		</ul>
+	{%else%}
+		<p>No availlable products</p>
+	{% endif %}	
+{% endblock content %}

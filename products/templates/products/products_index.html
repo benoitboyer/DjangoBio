@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+	{% if product_list %}
+		<form action="{% url 'products:search_index'%}" method="post">
+		{% csrf_token %}
+			{{form.text_filter.errors}}
+			{{form.text_filter}}
+			{{form.text_filter.label}}
+			<p>By :</p>
+			{% for choice in form.product_filter  %}
+				{{choice}}
+				<br/>
+			{% endfor %}
+		<input type="submit" value="Search">
+		</form>
+
+
+		<form action="{% url 'products:choose' %}" method="post">
+		{% csrf_token %}
+			<ul>
+			{% for product in product_list %}
+				<li>
+					<em>{{product.product_brand}}</em> : {{product.product_name}} : {{product.product_price}}<input type="checkbox" id="chosen_product" name="chosen_product" value="{{product.id}}">
+					<label for="chosen_product"></label>
+				</li>
+			{% endfor %}
+			</ul>
+		<input type="submit" value="Get to products list">
+		</form>	
+	{%else%}
+		<p>No availlable products</p>
+	{% endif %}	
+{% endblock content %}
