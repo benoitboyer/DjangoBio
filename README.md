@@ -19,10 +19,6 @@ December 2017:
   * add a count system to check if the ordered product quantity in kg match the product mass; 
    if not add a FIFO algoritm to validate cart items when the target mass is reached.
 
-January 2018:
-  * alpha release
-
-
 ## Built With
 
 * [Django](https://www.djangoproject.com/) - v1.11
