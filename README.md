@@ -15,7 +15,7 @@ The goals here were to practice the core functionalities of the Django Framework
 * How to implement AJAX calls
 * Understand the route system
 * Manipulate and valid datas
-* Django file architecture 
+* Django files architecture 
 
 This project gave me the will to learn more advanced Django concept such as:
 
