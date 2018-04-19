@@ -1,23 +1,29 @@
 # DjangoBio
 
-This project is about making a lightweight SAP to import bio labelised products.
+This project is about making a managment app to import "bio" labelised products.
 
-## Roadmap
+## About
 
-November 2017: 
+This is my first Django project.
 
-  * admin will have a view to see all the valid carts for an order, with a link for all client's invoices.
-  
-  * add a detailed list of ordered products to check when the products are delivered.
+The goals here were to practice the core functionalities of the Django Framework such as:
 
-December 2017:
+* Function based views
+* Create relational models
+* Basic CRUD operations
+* Make some unit test
+* How to implement AJAX calls
+* Understand the route system
+* Manipulate and valid datas
+* Django file architecture 
 
-  * add new product suppliers to the shoplist
-  
-  * client will be able to buy products in kg (min 0.5)
-  
-  * add a count system to check if the ordered product quantity in kg match the product mass; 
-   if not add a FIFO algoritm to validate cart items when the target mass is reached.
+This project gave me the will to learning more advanced Django concept such as:
+
+* Class Based View
+* How to make Restfull Api using Django Rest framework
+* Using Redis and Celery for asynchronous task
+
+The project is not ready for commercial uses
 
 ## Built With
 
