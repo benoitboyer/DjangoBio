@@ -17,7 +17,7 @@ The goals here were to practice the core functionalities of the Django Framework
 * Manipulate and valid datas
 * Django file architecture 
 
-This project gave me the will to learning more advanced Django concept such as:
+This project gave me the will to learn more advanced Django concept such as:
 
 * Class Based View
 * How to make Restfull Api using Django Rest framework
